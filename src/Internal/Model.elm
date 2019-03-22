@@ -2216,14 +2216,17 @@ renderFocusStyle focus =
                 (\shadow ->
                     Property "box-shadow"
                         (formatBoxShadow
-                            { color = shadow.color
-                            , offset =
-                                shadow.offset
-                                    |> Tuple.mapFirst toFloat
-                                    |> Tuple.mapSecond toFloat
-                            , inset = False
-                            , blur = toFloat shadow.blur
-                            , size = toFloat shadow.size
+                            { inset = False
+                            , shadows =
+                                [ { offset =
+                                        shadow.offset
+                                            |> Tuple.mapFirst toFloat
+                                            |> Tuple.mapSecond toFloat
+                                  , blur = toFloat shadow.blur
+                                  , size = toFloat shadow.size
+                                  , color = shadow.color
+                                  }
+                                ]
                             }
                         )
                 )
@@ -3060,35 +3063,44 @@ textShadowName shadow =
         ]
 
 
-formatBoxShadow shadow =
-    String.join " " <|
-        List.filterMap identity
-            [ if shadow.inset then
-                Just "inset"
+formatBoxShadow shade =
+    String.join "," <|
+        List.map
+            (\shadow ->
+                String.join " " <|
+                    List.filterMap identity
+                        [ if shade.inset then
+                            Just "inset"
 
-              else
-                Nothing
-            , Just <| String.fromFloat (Tuple.first shadow.offset) ++ "px"
-            , Just <| String.fromFloat (Tuple.second shadow.offset) ++ "px"
-            , Just <| String.fromFloat shadow.blur ++ "px"
-            , Just <| String.fromFloat shadow.size ++ "px"
-            , Just <| formatColor shadow.color
-            ]
+                          else
+                            Nothing
+                        , Just <| String.fromFloat (Tuple.first shadow.offset) ++ "px"
+                        , Just <| String.fromFloat (Tuple.second shadow.offset) ++ "px"
+                        , Just <| String.fromFloat shadow.blur ++ "px"
+                        , Just <| String.fromFloat shadow.size ++ "px"
+                        , Just <| formatColor shadow.color
+                        ]
+            )
+            shade.shadows
 
 
-boxShadowName shadow =
+boxShadowName shade =
     String.concat <|
-        [ if shadow.inset then
-            "box-inset"
+        List.concatMap
+            (\shadow ->
+                [ if shade.inset then
+                    "box-inset"
 
-          else
-            "box-"
-        , String.fromFloat (Tuple.first shadow.offset) ++ "px"
-        , String.fromFloat (Tuple.second shadow.offset) ++ "px"
-        , String.fromFloat shadow.blur ++ "px"
-        , String.fromFloat shadow.size ++ "px"
-        , formatColorClass shadow.color
-        ]
+                  else
+                    "box-"
+                , String.fromFloat (Tuple.first shadow.offset) ++ "px"
+                , String.fromFloat (Tuple.second shadow.offset) ++ "px"
+                , String.fromFloat shadow.blur ++ "px"
+                , String.fromFloat shadow.size ++ "px"
+                , formatColorClass shadow.color
+                ]
+            )
+            shade.shadows
 
 
 floatClass : Float -> String

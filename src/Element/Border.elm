@@ -3,7 +3,7 @@ module Element.Border exposing
     , width, widthXY, widthEach
     , solid, dashed, dotted
     , rounded, roundEach
-    , glow, innerGlow, shadow, innerShadow
+    , glow, innerGlow, shadow, shadows, innerShadow, innerShadows
     )
 
 {-|
@@ -28,7 +28,7 @@ module Element.Border exposing
 
 ## Shadows
 
-@docs glow, innerGlow, shadow, innerShadow
+@docs glow, innerGlow, shadow, shadows, innerShadow, innerShadows
 
 -}
 
@@ -224,10 +224,36 @@ shadow almostShade =
     let
         shade =
             { inset = False
-            , offset = almostShade.offset
-            , size = almostShade.size
-            , blur = almostShade.blur
-            , color = almostShade.color
+            , shadows =
+                [ { offset = almostShade.offset
+                  , size = almostShade.size
+                  , blur = almostShade.blur
+                  , color = almostShade.color
+                  }
+                ]
+            }
+    in
+    Internal.StyleClass Flag.shadows <|
+        Internal.Single
+            (Internal.boxShadowName shade)
+            "box-shadow"
+            (Internal.formatBoxShadow shade)
+
+
+{-| -}
+shadows :
+    List
+        { offset : ( Float, Float )
+        , size : Float
+        , blur : Float
+        , color : Color
+        }
+    -> Attr decorative msg
+shadows almostShade =
+    let
+        shade =
+            { inset = False
+            , shadows = almostShade
             }
     in
     Internal.StyleClass Flag.shadows <|
@@ -249,10 +275,36 @@ innerShadow almostShade =
     let
         shade =
             { inset = True
-            , offset = almostShade.offset
-            , size = almostShade.size
-            , blur = almostShade.blur
-            , color = almostShade.color
+            , shadows =
+                [ { offset = almostShade.offset
+                  , size = almostShade.size
+                  , blur = almostShade.blur
+                  , color = almostShade.color
+                  }
+                ]
+            }
+    in
+    Internal.StyleClass Flag.shadows <|
+        Internal.Single
+            (Internal.boxShadowName shade)
+            "box-shadow"
+            (Internal.formatBoxShadow shade)
+
+
+{-| -}
+innerShadows :
+    List
+        { offset : ( Float, Float )
+        , size : Float
+        , blur : Float
+        , color : Color
+        }
+    -> Attr decorative msg
+innerShadows almostShade =
+    let
+        shade =
+            { inset = True
+            , shadows = almostShade
             }
     in
     Internal.StyleClass Flag.shadows <|
